@@ -2,14 +2,14 @@
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
- const keyboard = [
+ 	const keyboard = [
 	 'qwertyuiop'.split(''),
 	 'asdfghjkl'.split(''),
 	 ['left', 'right', ...'zxcvbnm'.split(''), 'del']
- ];
-function handleClick(key) {
-  return e => {
-    dispatch('type', {key}
+ 	];
+	function handleClick(key) {
+  	return e => {
+    	dispatch('type', {key}
     );
   }
 }
@@ -28,11 +28,11 @@ function handleClick(key) {
 	</div>
 
 <style>
-.keyboard {
+	.keyboard {
 		display: flex;
 		flex-direction: column;
-align-items: center; 
-max-width: 500px;
+		align-items: center; 
+		max-width: 500px;
 	}
 	.row {
 		display: flex;

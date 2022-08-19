@@ -5,38 +5,65 @@
 </svelte:head>
 
 <script>
- import {solutions, updateSolutions} from './lib/words';
- import Keyboard from './lib/keyboard.svelte';
- let validSolutions = solutions;
- let placedValues = ['','','','',''];
- let refPlacedValues = [];
+ 	import {solutions, updateSolutions} from './lib/words';
+ 	import Keyboard from './lib/keyboard.svelte';
+	import {absent, placed, unplaced, validSolutions, probabilities} from './lib/store.js';
 
- let unplacedValues = ['','','','',''];
- let refUnplacedValues = [];
-
- let focus = 0;
- let absent = '';
-
- const keyboard = [
-	 'qwertyuiop'.split(''),
-	 'asdfghjkl'.split(''),
-	 ['left', 'right', ...'zxcvbnm'.split(''), 'del']
- ];
-
-function handleType(e) {
-  handleKey(e.detail.key);
-
-}
-function handleClick(key) {
-	return e => handleKey(key)
-}
-
-function update() {
-	validSolutions = updateSolutions(validSolutions, placedValues, unplacedValues, absent);
-}
-
-function handleKey(key) {
+	let absentValue, placedValue, unplacedValue, validSolutionsValue, probabilitiesValue;
+	absent.suscribe(value => absentValue = value);
+	placed.suscribe(value => placedValue = value);
+	unplaced.suscribe(value => unplacedValue = value);
+	validSolutions.suscribe(value => validSolutionsValue = value);
+	probabilities.suscribe(value => probabilitiesValue = value);
 	
+ 	let focus = 0;
+ 	
+	function handleType(e) {
+  	handleKey(e.detail.key);
+	}
+	function handleClick(key) {
+		return e => handleKey(key)
+	}
+
+	function update() {
+		validSolutions.update(updateSolutions(validSolutionsValue, placedValue, unplacedValue, absentValue));
+	}
+
+	function handlePlaced(key, index) {
+		const nextPlaced = [...placedValue];
+		if (key === 'del') {
+			nextPlaced[index] = '';
+			
+		} else {
+			nextPlaced[index] = key;
+			focus = (focus + 1) %5;
+		}
+		placed.update(nextPlaced);
+		update();
+		return;
+	}
+
+	function handleUnplaced(key, index) {
+		const nextUnplaced = [...unplacedValue];
+		const thisUnplaced = unplacedValue[index];
+
+		if (key === 'del') {
+			nextUnplaced[index] = thisUnplaced.substring(0, thisUnplaced.length - 1);			
+		} else {
+			if (!thisUnplaced.includes(key)) {
+					nextUnplaced[index] = (thisUnplaced || '')  + key;
+					if (nextUnplaced[index].length === 5) {
+						focus = 5 + (focus + 1) % 5;
+					}
+			}
+		}
+		unplaced.update(nextUnplaced);
+		update();
+		return;
+	} 
+
+	function handleKey(key) {
+
 		if (key === 'left') {
 			focus = (focus + 10) % 11;
 			return;
@@ -45,56 +72,31 @@ function handleKey(key) {
 			focus = (focus + 1) % 11;
 			return;
 		}
+		
 		// placed letters
 		if (focus < 5) {
-			if (key === 'del') {
-				placedValues[focus] = '';
-				update();
-				return;
-			}
-			placedValues[focus] = key;
-			focus = (focus + 1) %5;
-			update();
-			return;
+			return handlePlaced(key, focus);
 		}
+
 		// unplaced letters
 		if (focus < 10) {
-
-		
-		if (key === 'del') {
-			unplacedValues[focus - 5] = unplacedValues[focus - 5].substring(0, unplacedValues[focus - 5].length - 1);
-			update();
-			return;
-		}
-
-		if (unplacedValues[focus - 5].length < 5) {
-			if (!unplacedValues[focus - 5].includes(key)) {
-				unplacedValues[focus - 5] = (unplacedValues[focus - 5] || '')  + key;
-				update();
-				return;
-			}
-			if (unplacedValues[focus - 5].length === 5) {
-				focus = 5 + (focus + 1) % 5;
-			}
-		}
+			return handleUnplaced(key, focus - 5);
 		}
 	
-	// absent
+		// absent
 		if (key === 'del') {
-			absent = absent.substring(0, absent.length - 1);
+			absent.update(absentValue.substring(0, absentValue.length - 1));
 			update();
 			return;
 		}
-		if (absent.length < 25) {
-			if (!absent.includes(key)) {
-				absent = absent + key;
+		if (absentValue.length < 25) {
+			if (!absentValue.includes(key)) {
+				absent.update(absentValue + key);
 				update();
 				return;
 			}
 		}
-}
-
-
+	}
 </script>
 
 <section>
@@ -105,15 +107,15 @@ function handleKey(key) {
 	
 		<div 
 			class={`placed ${index === focus ? 'focus' : ''}`}
-			bind:this={refPlacedValues[index]}
 			on:click={() => focus = index}
 			tabindex={index}
 			>
-			{placedValues[index] || ' '} 
+			{placedValue[index] || ' '} 
 		</div>
-		<div class={`unplaced ${index + 5 === focus  ? 'focus' : ''}`} bind:this={refUnplacedValues[index]} tabindex={index + 5}
+		<div class={`unplaced ${index + 5 === focus  ? 'focus' : ''}`} 
+		tabindex={index + 5}
 		on:click={() => focus = index + 5}
-		>	{unplacedValues[index] || ' '} </div>
+		>	{unplacedValue[index] || ' '} </div>
 		</div>
 	{/each}
 	</div>
@@ -125,9 +127,9 @@ function handleKey(key) {
 	
 	<div class="solutions">
 	<div class="solution-length">
-	{`${validSolutions.length} possible words`}
+	{`${validSolutionsValue.length} possible words`}
 	</div>
-	{#each validSolutions as solution}
+	{#each validSolutionsValue as solution}
 	<span>{solution}</span>
 	{/each}
 	</div>
