@@ -6,7 +6,7 @@ export const placed = writable(['', '', '', '', '']);
 export const unplaced = writable(['', '', '', '', '']);
 export const absent = writable('');
 export const validSolutions = writable(solutions);
-const letterProbs = letters.reduce((curr, prev) => {
+const letterProbs = letters.reduce((prev, curr) => {
 	prev[curr] = 1;
 	return prev;
 }, {});
