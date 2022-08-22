@@ -7,6 +7,7 @@
 <script>
  	import {solutions, updateSolutions} from './lib/words';
  	import Keyboard from './lib/keyboard.svelte';
+	import Solutions from './lib/solutions.svelte';
 	import {absent, placed, unplaced, validSolutions, probabilities} from './lib/store.js';
 
 	let absentValue = '', placedValue = [], unplacedValue = [], validSolutionsValue = [], probabilitiesValue = [];
@@ -132,23 +133,13 @@
 	</div>
 
   <Keyboard on:type={handleType}/>
+	<Solutions solutions={$validSolutions} placed={$placed} unplaced={$unplaced} />
 	
-	<div class="solutions">
-	<div class="solution-length">
-	{`${validSolutionsValue.length} possible words`}
-	</div>
-	{#each validSolutionsValue as solution}
-	<span>{solution}</span>
-	{/each}
-	</div>
 </section>
 
 
 <style>
-	:root {
-		--correct: #6aaa64;
-		--present: #C9B459;
-	}
+
 	.letter-block {
 		display: flex;
 		flex-direction: column;
@@ -210,21 +201,8 @@
 		border: 2px solid black;
 	}
 	
-	.solutions {
-		width:60%;
-		
-		overflow-y: scroll;
-		word-break:keep-all;
+	
 
-	}
-	.solutions span {margin: 0.5rem;
-	display:inline-block;
-	border-radius: 0.5rem;
-	padding: 0.5rem;
-	background: white;
-
-
-	 }
 	section {
 		display: flex;
 		flex-direction: column;
