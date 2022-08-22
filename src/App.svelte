@@ -9,12 +9,13 @@
  	import Keyboard from './lib/keyboard.svelte';
 	import {absent, placed, unplaced, validSolutions, probabilities} from './lib/store.js';
 
-	let absentValue, placedValue, unplacedValue, validSolutionsValue, probabilitiesValue;
-	absent.suscribe(value => absentValue = value);
-	placed.suscribe(value => placedValue = value);
-	unplaced.suscribe(value => unplacedValue = value);
-	validSolutions.suscribe(value => validSolutionsValue = value);
-	probabilities.suscribe(value => probabilitiesValue = value);
+	let absentValue = '', placedValue = [], unplacedValue = [], validSolutionsValue = [], probabilitiesValue = [];
+
+	absent.subscribe(value => absentValue = value);
+	placed.subscribe(value => placedValue = value);
+	unplaced.subscribe(value => unplacedValue = value);
+	validSolutions.subscribe(value => validSolutionsValue = value);
+	probabilities.subscribe(value => probabilitiesValue = value);
 	
  	let focus = 0;
  	
@@ -26,11 +27,11 @@
 	}
 
 	function update() {
-		validSolutions.update(updateSolutions(validSolutionsValue, placedValue, unplacedValue, absentValue));
+		$validSolutions  = updateSolutions($validSolutions, $placed, $unplaced, $absent);
 	}
 
 	function handlePlaced(key, index) {
-		const nextPlaced = [...placedValue];
+		const nextPlaced = [...$placed];
 		if (key === 'del') {
 			nextPlaced[index] = '';
 			
@@ -38,14 +39,14 @@
 			nextPlaced[index] = key;
 			focus = (focus + 1) %5;
 		}
-		placed.update(nextPlaced);
+		$placed = nextPlaced;
 		update();
 		return;
 	}
 
 	function handleUnplaced(key, index) {
-		const nextUnplaced = [...unplacedValue];
-		const thisUnplaced = unplacedValue[index];
+		const nextUnplaced = [...$unplaced];
+		const thisUnplaced = $unplaced[index];
 
 		if (key === 'del') {
 			nextUnplaced[index] = thisUnplaced.substring(0, thisUnplaced.length - 1);			
@@ -57,7 +58,7 @@
 					}
 			}
 		}
-		unplaced.update(nextUnplaced);
+		$unplaced = nextUnplaced;
 		update();
 		return;
 	} 
@@ -85,13 +86,13 @@
 	
 		// absent
 		if (key === 'del') {
-			absent.update(absentValue.substring(0, absentValue.length - 1));
+			$absent = $absent.substring(0, $absent.length - 1);
 			update();
 			return;
 		}
 		if (absentValue.length < 25) {
-			if (!absentValue.includes(key)) {
-				absent.update(absentValue + key);
+			if (!$absent.includes(key)) {
+				$absent = $absent + key;
 				update();
 				return;
 			}
@@ -120,7 +121,7 @@
 	{/each}
 	</div>
 	<div class={`absent ${focus === 10 ? 'focus' : ''}`}
-	on:click={() => focus = 10}>{absent}</div>
+	on:click={() => focus = 10}>{$absent}</div>
 	</div>
 
   <Keyboard on:type={handleType}/>
