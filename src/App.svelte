@@ -107,20 +107,27 @@
 		<div class="column">
 	
 		<div 
-			class={`placed ${index === focus ? 'focus' : ''}`}
+			class="placed" 
+			class:focus = {index === focus}
+			class:set = {$placed[index].length}
 			on:click={() => focus = index}
 			tabindex={index}
 			>
-			{placedValue[index] || ' '} 
+			{$placed[index] || ' '} 
 		</div>
-		<div class={`unplaced ${index + 5 === focus  ? 'focus' : ''}`} 
-		tabindex={index + 5}
-		on:click={() => focus = index + 5}
-		>	{unplacedValue[index] || ' '} </div>
+		<div 
+			class="unplaced"
+			class:focus = {index + 5 === focus}
+			class:set = {$unplaced[index].length}
+			tabindex={index + 5}
+			on:click={() => focus = index + 5}
+		>	{$unplaced[index] || ' '} </div>
 		</div>
 	{/each}
 	</div>
-	<div class={`absent ${focus === 10 ? 'focus' : ''}`}
+	<div 
+		class="absent"
+		class:focus = {focus === 10}
 	on:click={() => focus = 10}>{$absent}</div>
 	</div>
 
@@ -162,6 +169,14 @@
 		border-radius: 5px;
 		padding: 1rem;
 	}
+
+	.letter-block .placed.set {
+		background: green;
+		color: white;
+		text-transform: uppercase;
+		text-align: center;
+	}
+
 	.letter-block .absent {
 		width: 18rem;
 	}
