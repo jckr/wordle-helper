@@ -145,48 +145,71 @@
 
 
 <style>
-	
+	:root {
+		--correct: #6aaa64;
+		--present: #C9B459;
+	}
 	.letter-block {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		width: 80%;
+		max-width: 500px;
+		width: 100%;
 	}
-	.unplaced-letters {
-		min-height: 1rem;
-	}
+
 	.columns {
 		display: flex;
 		flex-direction: row;
+		width: 100%;
 		justify-content: center;
 	}
+	.column {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5em;
+		margin: 0 0.5rem;
+		flex-direction: column;
+	}
 	.letter-block .placed, .letter-block .unplaced, .letter-block .absent {
-		background: white;
-		height: 1rem;
-		width: 1rem;
-		margin: 0.5rem;
+		margin: 0.5rem 0;
+		width: 100%;
+		height: 2.5rem;
 		border: 2px solid white;
 		border-radius: 5px;
-		padding: 1rem;
+		padding: 0.25rem;
 	}
 
+	.letter-block .unplaced {
+		max-width: 1.5rem;
+		padding: 0.25rem 0.75rem;
+		overflow-wrap: anywhere
+	}
+
+	.letter-block .placed {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.letter-block .unplaced.set {
+		background: var(--present);
+	}
 	.letter-block .placed.set {
-		background: green;
+		background: var(--correct);
 		color: white;
 		text-transform: uppercase;
 		text-align: center;
 	}
 
 	.letter-block .absent {
-		width: 18rem;
+		width: 17rem;
 	}
 	.letter-block .focus {
+		background: white;
 		border: 2px solid black;
 	}
-	.column {
-		display: flex;
-		flex-direction: column;
-	}
+	
 	.solutions {
 		width:60%;
 		
