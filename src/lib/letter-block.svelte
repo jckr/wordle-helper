@@ -1,30 +1,40 @@
 <script>
 import {absent, focus, placed, unplaced} from './store';
+const columns = [0,1,2,3,4];
 </script>
 
 <div class="letter-block">
+  <h2>Placed letters</h2>
 	<div class="columns">
-	{#each [0,1,2,3,4] as index} 
+	{#each columns as index} 
 		<div class="column">
-		<div 
-			class="placed" 
-			class:focus = {index === $focus}
-			class:set = {$placed[index].length}
-			on:click={() => $focus = index}
-			tabindex={index}
-			>
-			{$placed[index] || ' '} 
+      <div 
+        class="placed" 
+        class:focus = {index === $focus}
+        class:set = {$placed[index].length}
+        on:click={() => $focus = index}
+        tabindex={index}
+        >
+        {$placed[index] || ' '} 
+      </div>
 		</div>
-		<div 
-			class="unplaced"
-			class:focus = {index + 5 === $focus}
-			class:set = {$unplaced[index].length}
-			tabindex={index + 5}
-			on:click={() => $focus = index + 5}
-		>	{$unplaced[index] || ' '} </div>
+	{/each}
+  </div>
+  <h2>Unplaced letters</h2>
+	<div class="columns">
+  {#each columns as index} 
+		<div class="column">
+      <div 
+        class="unplaced"
+        class:focus = {index + 5 === $focus}
+        class:set = {$unplaced[index].length}
+        tabindex={index + 5}
+        on:click={() => $focus = index + 5}
+      >	{$unplaced[index] || ' '} </div>
 		</div>
 	{/each}
 	</div>
+  <h2>Letters not in word</h2>
 	<div 
 		class="absent"
 		class:focus = {$focus === 10}
@@ -39,7 +49,14 @@ import {absent, focus, placed, unplaced} from './store';
 		max-width: 500px;
 		width: 100%;
 	}
-
+  h2 {
+    width: 17rem;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+  h2:after {
+    content: ':'
+  }
 	.columns {
 		display: flex;
 		flex-direction: row;
