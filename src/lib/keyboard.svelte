@@ -1,12 +1,30 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { probabilities } from './store';
 
+	let solutionsValue = [];
 	const dispatch = createEventDispatcher();
  	const keyboard = [
 	 'qwertyuiop'.split(''),
 	 'asdfghjkl'.split(''),
 	 ['left', 'right', ...'zxcvbnm'.split(''), 'del']
  	];
+
+	function display(key) {
+		if (key.length === 1) {
+			return key;
+		}
+		if (key === 'left') {
+			return '←';
+		}
+		if (key === 'right') {
+			return '→';
+		}
+		if (key === 'del') {
+			return '⌫';
+		}
+	}
+
 	function handleClick(key) {
   	return e => {
     	dispatch('type', {key}
@@ -19,8 +37,14 @@
 	{#each keyboard as row}
 	<div class="row">
 	{#each row as key}
-	<button on:click={handleClick(key)}>
-	{key}
+	<button 
+		class:lots={key.length === 1 && $probabilities[key] > 0.1}
+		class:some={key.length > 1 || $probabilities[key] < 0.05}
+		class:few={key.length === 1 && $probabilities[key] < 0.01}
+		class:none={key.length === 1 && $probabilities[key] < 0.00001}
+	
+	 on:click={handleClick(key)}>
+	{display(key)}
 	</button>
 	{/each}
 	</div>
@@ -41,17 +65,30 @@
 		justify-content: center;
 		margin: 0 0 0.75rem;
 	}
-	.row button {
+	button {
 		min-height: 1rem;
 		padding: 0.5rem;
-	background: #eee;
+		background: #ccc;
 		border-radius: 0.375rem;
 		min-width: 1rem;
 		display: flex;
 		justify-content: center;
 		align-items: center; 
-cursor: pointer;
-	box-shadow: 2px 2px 1px 1px rgb(0 0 0 / 10%);
-	margin: 0 0.5rem 0 0;
+		cursor: pointer;
+		text-transform: uppercase;
+		box-shadow: 2px 2px 1px 1px rgb(0 0 0 / 10%);
+		margin: 0 0.5rem 0 0;
 	}
+	button.few {
+		background: #888;
+	}
+	button.none {
+		background: black;
+		color: white;
+	}
+	button.lots {
+		background: white;
+		color: #444;
+	}
+	
 </style>

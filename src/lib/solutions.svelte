@@ -23,7 +23,5 @@ beforeUpdate(async () => {
 		max-width: 500px;
 		overflow-y: scroll;
 		word-break:keep-all;
-
 	}
-
 </style>

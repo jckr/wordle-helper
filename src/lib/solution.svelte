@@ -1,13 +1,16 @@
 <script>
-export let solution = [], placed = [], unplacedLetters = new Set();
+export let solution = '', placed = [], unplacedLetters = new Set();
 </script>
 
-<span>
-{#each solution.split('') as letter, i}
-<span class:placed = {placed[i] === letter} class:unplaced = {placed[i] !== letter && unplacedLetters.has(letter)}>{letter}</span>
-{/each}
-</span>
-
+{#if placed.length === 0 && unplacedLetters.size === 0}
+  <span>{solution}</span>
+{:else}
+  <span>
+    {#each solution.split('') as letter, i}
+    <span class:placed = {placed[i] === letter} class:unplaced = {placed[i] !== letter && unplacedLetters.has(letter)}>{letter}</span>
+    {/each}
+  </span>
+{/if}
 <style>
 	span {margin: 0.5rem 0.25rem;
     display:inline-block;

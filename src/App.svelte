@@ -5,21 +5,12 @@
 </svelte:head>
 
 <script>
- 	import {solutions, updateSolutions} from './lib/words';
+ 	import {letterProbabilities, solutions, updateSolutions} from './lib/words';
  	import Keyboard from './lib/keyboard.svelte';
+	import LetterBlock from './lib/letter-block.svelte';
 	import Solutions from './lib/solutions.svelte';
-	import {absent, placed, unplaced, validSolutions, probabilities} from './lib/store.js';
+	import {absent, focus, placed, unplaced, validSolutions, probabilities} from './lib/store.js';
 
-	let absentValue = '', placedValue = [], unplacedValue = [], validSolutionsValue = [], probabilitiesValue = [];
-
-	absent.subscribe(value => absentValue = value);
-	placed.subscribe(value => placedValue = value);
-	unplaced.subscribe(value => unplacedValue = value);
-	validSolutions.subscribe(value => validSolutionsValue = value);
-	probabilities.subscribe(value => probabilitiesValue = value);
-	
- 	let focus = 0;
- 	
 	function handleType(e) {
   	handleKey(e.detail.key);
 	}
@@ -29,6 +20,7 @@
 
 	function update() {
 		$validSolutions  = updateSolutions($validSolutions, $placed, $unplaced, $absent);
+		$probabilities = letterProbabilities($validSolutions, $placed);
 	}
 
 	function handlePlaced(key, index) {
@@ -38,7 +30,7 @@
 			
 		} else {
 			nextPlaced[index] = key;
-			focus = (focus + 1) %5;
+			$focus = ($focus + 1) %5;
 		}
 		$placed = nextPlaced;
 		update();
@@ -55,7 +47,7 @@
 			if (!thisUnplaced.includes(key)) {
 					nextUnplaced[index] = (thisUnplaced || '')  + key;
 					if (nextUnplaced[index].length === 5) {
-						focus = 5 + (focus + 1) % 5;
+						$focus = 5 + ($focus + 1) % 5;
 					}
 			}
 		}
@@ -64,25 +56,40 @@
 		return;
 	} 
 
+	function handleKeydown(e) {
+		if (e.key.length === 1) {
+			return handleKey(e.key.toLowerCase());
+		}
+		if (e.key === 'ArrowRight' || (e.key === 'Tab' && e.shiftKey === false)) {
+			return handleKey('right');
+		}
+		if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey === true)) {
+			return handleKey('left');
+		}
+		if (e.key === 'Delete' || e.key === 'Backspace') {
+			return handleKey('del');
+		}
+	}
+
 	function handleKey(key) {
 
 		if (key === 'left') {
-			focus = (focus + 10) % 11;
+			$focus = ($focus + 10) % 11;
 			return;
 		}
 		if (key === 'right') {
-			focus = (focus + 1) % 11;
+			$focus = ($focus + 1) % 11;
 			return;
 		}
 		
 		// placed letters
-		if (focus < 5) {
-			return handlePlaced(key, focus);
+		if ($focus < 5) {
+			return handlePlaced(key, $focus);
 		}
 
 		// unplaced letters
-		if (focus < 10) {
-			return handleUnplaced(key, focus - 5);
+		if ($focus < 10) {
+			return handleUnplaced(key, $focus - 5);
 		}
 	
 		// absent
@@ -91,7 +98,7 @@
 			update();
 			return;
 		}
-		if (absentValue.length < 25) {
+		if ($absent.length < 25) {
 			if (!$absent.includes(key)) {
 				$absent = $absent + key;
 				update();
@@ -101,115 +108,20 @@
 	}
 </script>
 
-<section>
-<div class="letter-block">
-	<div class="columns">
-	{#each [0,1,2,3,4] as index} 
-		<div class="column">
-	
-		<div 
-			class="placed" 
-			class:focus = {index === focus}
-			class:set = {$placed[index].length}
-			on:click={() => focus = index}
-			tabindex={index}
-			>
-			{$placed[index] || ' '} 
-		</div>
-		<div 
-			class="unplaced"
-			class:focus = {index + 5 === focus}
-			class:set = {$unplaced[index].length}
-			tabindex={index + 5}
-			on:click={() => focus = index + 5}
-		>	{$unplaced[index] || ' '} </div>
-		</div>
-	{/each}
-	</div>
-	<div 
-		class="absent"
-		class:focus = {focus === 10}
-	on:click={() => focus = 10}>{$absent}</div>
-	</div>
+<svelte:window on:keydown={handleKeydown}/>
 
-  <Keyboard on:type={handleType}/>
-	<Solutions solutions={$validSolutions} placed={$placed} unplaced={$unplaced} />
-	
+<section>
+	<LetterBlock />
+  <Keyboard on:type={handleType} />
+	<Solutions solutions={$validSolutions} placed={$placed} unplaced={$unplaced} />	
 </section>
 
-
 <style>
-
-	.letter-block {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		max-width: 500px;
-		width: 100%;
-	}
-
-	.columns {
-		display: flex;
-		flex-direction: row;
-		width: 100%;
-		justify-content: center;
-	}
-	.column {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 2.5em;
-		margin: 0 0.5rem;
-		flex-direction: column;
-	}
-	.letter-block .placed, .letter-block .unplaced, .letter-block .absent {
-		margin: 0.5rem 0;
-		width: 100%;
-		height: 2.5rem;
-		border: 2px solid white;
-		border-radius: 5px;
-		padding: 0.25rem;
-	}
-
-	.letter-block .unplaced {
-		max-width: 1.5rem;
-		padding: 0.25rem 0.75rem;
-		overflow-wrap: anywhere
-	}
-
-	.letter-block .placed {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.letter-block .unplaced.set {
-		background: var(--present);
-	}
-	.letter-block .placed.set {
-		background: var(--correct);
-		color: white;
-		text-transform: uppercase;
-		text-align: center;
-	}
-
-	.letter-block .absent {
-		width: 17rem;
-	}
-	.letter-block .focus {
-		background: white;
-		border: 2px solid black;
-	}
-	
-	
-
 	section {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		flex: 1;
-	}
-
-	
+	}	
 </style>

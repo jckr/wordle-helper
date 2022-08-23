@@ -12956,7 +12956,7 @@ export const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 export function updateSolutions(validSolutions, placedValues, unplacedValues, absent) {
 	return solutions.filter((word) => {
 		const letters = word.split('');
-		// a word is valud if:
+		// a word is valid if:
 		return (
 			letters.every(
 				(letter, i) =>
@@ -12976,16 +12976,20 @@ export function updateSolutions(validSolutions, placedValues, unplacedValues, ab
 	});
 }
 
-export function letterProbabilities(validSolutions) {
-	const tallyPerLetter = letters.reduce((curr, prev) => {
-		prev.curr = 0;
+export function letterProbabilities(validSolutions, placed) {
+	const nbPlaced = placed.filter((d) => d !== '').length;
+	const tallyPerLetter = letters.reduce((prev, curr) => {
+		prev[curr] = 0;
 		return prev;
 	}, {});
-	const nbOfLettersInSolutions = validSolutions.length * 5;
+	const nbOfLettersInSolutions = validSolutions.length * (5 - nbPlaced);
 	for (const solution of validSolutions) {
 		const letters = solution.split('');
+		let letterIndex = 0;
 		for (const letter of letters) {
-			tallyPerLetter[letter] += 1 / nbOfLettersInSolutions;
+			if (placed[letterIndex++] === '') {
+				tallyPerLetter[letter] += 1 / nbOfLettersInSolutions;
+			}
 		}
 	}
 	return tallyPerLetter;
