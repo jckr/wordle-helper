@@ -19,7 +19,6 @@ beforeUpdate(async () => {
 
   <style>
   .solutions {
-		width:100%;
 		max-width: 500px;
 		overflow-y: scroll;
 		word-break:keep-all;

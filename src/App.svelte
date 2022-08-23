@@ -109,7 +109,12 @@
 </script>
 
 <svelte:window on:keydown={handleKeydown}/>
-
+<h1 on:click={() => {
+	$placed = ['', '', '', '', ''];
+	$unplaced = ['', '', '', '', ''];
+	$absent = '';
+	update();
+}}>Wordle Buddy</h1>
 <section>
 	<LetterBlock />
   <Keyboard on:type={handleType} />
@@ -117,7 +122,11 @@
 </section>
 
 <style>
+h1 {
+	cursor: pointer;
+}
 	section {
+		padding: 1rem;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;

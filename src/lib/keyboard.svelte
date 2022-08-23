@@ -67,7 +67,7 @@
 	}
 	button {
 		min-height: 1rem;
-		padding: 0.5rem;
+		padding: max(0.5rem, 1.5vw);
 		background: #ccc;
 		border-radius: 0.375rem;
 		min-width: 1rem;
